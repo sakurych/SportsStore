@@ -1,0 +1,26 @@
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace SportsStore.Models
+{
+    public class EFOrderRepository : IOrderRepository
+    {
+        private ApplicationDbContext context;
+
+        public EFOrderRepository(ApplicationDbContext context)
+        {
+            this.context = context;
+        }
+
+        public IEnumerable<Order> Orders => context.Ordres.Include(o => o.Lines).ThenInclude(l => l.Product);
+
+        public void SaveOrder(Order order)
+        {
+            context.AttachRange(order.Lines.Select(l => l.Product));
+            if (order.OrderID == 0)
+            {
+                context.Ordres.Add(order);
+            }
+            context.SaveChanges();
+        }
+    }
+}
