@@ -14,7 +14,7 @@ namespace SportsStore.Controllers
         }
 
         // GET: AdminController
-        public ActionResult Index()
+        public ViewResult Index()
         {
             return View(repository.Products);
         }
@@ -26,15 +26,15 @@ namespace SportsStore.Controllers
         }
 
         // GET: AdminController/Create
-        public ActionResult Create()
+        public ViewResult Create()
         {
-            return View();
+            return View("Edit", new Product());
         }
 
         // POST: AdminController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public IActionResult Create(IFormCollection collection)
         {
             try
             {
@@ -47,45 +47,37 @@ namespace SportsStore.Controllers
         }
 
         // GET: AdminController/Edit/5
-        public ActionResult Edit(int id)
+        public ViewResult Edit(int productId)
         {
-            return View();
+            return View(repository.Products.FirstOrDefault(p => p.ProductId == productId));
         }
 
         // POST: AdminController/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public IActionResult Edit(Product product)
         {
-            try
+            if (ModelState.IsValid)
             {
+                repository.SaveProduct(product);
+                TempData["message"] = $"{product.Name} has been saved";
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            else
             {
-                return View();
+                return View(product);
             }
-        }
-
-        // GET: AdminController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
         }
 
         // POST: AdminController/Delete/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public IActionResult Delete(int productId)
         {
-            try
+            var product = repository.DeleteProduct(productId);
+            if (product != null)
             {
-                return RedirectToAction(nameof(Index));
+                TempData["message"] = $"{product.Name} was deleted";
             }
-            catch
-            {
-                return View();
-            }
+            return RedirectToAction(nameof(Index));
         }
     }
 }
