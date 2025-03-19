@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace SportsStore.Models
@@ -10,6 +11,7 @@ namespace SportsStore.Models
         {
             var context = app.ApplicationServices
                 .GetRequiredService<ApplicationDbContext>();
+            context.Database.Migrate();
             if (!context.Products.Any())
             {
                 context.Products.AddRange(
